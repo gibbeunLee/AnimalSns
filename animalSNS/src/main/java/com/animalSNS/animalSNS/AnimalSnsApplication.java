@@ -1,0 +1,13 @@
+package com.animalSNS.animalSNS;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class AnimalSnsApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(AnimalSnsApplication.class, args);
+	}
+
+}
