@@ -1,7 +1,12 @@
 package com.animalSNS.animalSNS.chat;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Chat {
-    private Long chatRoomId;
-    private Long senderCode;
-    private String message;
+    private String senderCode;
+    private String recipientCode;
+    private String content;
 }

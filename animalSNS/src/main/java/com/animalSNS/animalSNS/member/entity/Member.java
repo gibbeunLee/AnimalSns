@@ -27,6 +27,8 @@ public class Member extends Auditable {
     @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
 
+    private String memberEmail;
+
 //    public enum AuthType {
 //        GOOGLE,
 //        KAKAO
