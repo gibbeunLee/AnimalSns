@@ -1,6 +1,7 @@
 package com.animalSNS.animalSNS.member.entity;
 
 import com.animalSNS.animalSNS.audit.Auditable;
+import com.animalSNS.animalSNS.post.entity.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,10 +28,16 @@ public class Member extends Auditable {
     @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
 
+    private String Email;
+
+
 //    public enum AuthType {
 //        GOOGLE,
 //        KAKAO
 //    }
+
+    @OneToMany(mappedBy = "member")
+    private List<Post> post;
 
     public enum MemberRole {
         MEMBER,

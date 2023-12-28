@@ -77,10 +77,10 @@ public class JwtTokenizer {
     public String delegateAccessToken(Member member) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("memberId", member.getMemberId());
-        claims.put("memberEmail", member.getMemberEmail());
+        claims.put("memberEmail", member.getEmail());
         claims.put("memberRole", member.getMemberRole());
 
-        String subject = member.getMemberEmail();
+        String subject = member.getEmail();
         Date expiration = getTokenExpiration(getAccessTokenExpirationMinutes());
 
         String base64EncodedSecretKey = encodeBase64SecretKey(getSecretKey());

@@ -12,7 +12,9 @@ public enum ExceptionCode {
     INVALID_ACCESS_TOKEN_STATE(403, "Invalid Access Token State"),
     ACCESS_TOKEN_EXPIRED(401, "Access Token Expired"),
     REFRESH_TOKEN_EXPIRED(401, "Refresh Token Expired"),
-    CHATROOM_NOT_FOUND(404,"Chatroom not found");
+    CHATROOM_NOT_FOUND(404,"Chatroom not found"),
+    POST_NOT_FOUND(404, "Post not found"),
+    UNMATCHED_WRITER(403, "글을 작성한 회원이 아닙니다.");
 
     @Getter
     private int status;
