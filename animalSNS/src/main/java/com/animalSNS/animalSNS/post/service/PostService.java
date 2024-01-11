@@ -36,7 +36,7 @@ public class PostService {
 
         imageService.saveImages(savePost, images);
 
-        Post findPost = postRepository.findByPostId(savePost.getPostId())
+        Post findPost = postRepository.findById(savePost.getPostId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.POST_NOT_FOUND));;
 
         PostDto.Response response = PostDto.Response.from(findPost);
@@ -68,7 +68,7 @@ public class PostService {
     }
 
     public Post findVerifidePost(long postId) {
-        Post findPost = postRepository.findByPostId(postId)
+        Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.POST_NOT_FOUND));
         return findPost;
     }
@@ -84,7 +84,7 @@ public class PostService {
     // 페이징 처리를 위한 메서드
     private List<Post> getPostList(Long postId, Pageable page) {
         return postId.equals(0L)
-                ? postRepository.findByOrderByPostIdDesc(page)
+                ? postRepository.findAllByOrderByPostIdDesc(page)
                 : postRepository.findByPostIdLessThanOrderByPostIdDesc(postId, page);
     }
 
@@ -95,7 +95,7 @@ public class PostService {
     }
     private List<Post> getFollowingPostList(Long postId, long followingMemberId, Pageable page) {
         return postId.equals(0L)
-                ? postRepository.findByMemberIdOrderByPostIdDesc(followingMemberId, page)
-                : postRepository.findByPostIdAndMemberIdLessThanOrderByPostIdDesc(postId, followingMemberId, page);
+                ? postRepository.findByMemberMemberIdOrderByPostIdDesc(followingMemberId, page)
+                : postRepository.findByMemberMemberIdAndPostIdLessThanOrderByPostIdDesc(postId, followingMemberId, page);
     }
 }

@@ -14,7 +14,8 @@ public enum ExceptionCode {
     REFRESH_TOKEN_EXPIRED(401, "Refresh Token Expired"),
     CHATROOM_NOT_FOUND(404,"Chatroom not found"),
     POST_NOT_FOUND(404, "Post not found"),
-    UNMATCHED_WRITER(403, "글을 작성한 회원이 아닙니다.");
+    UNMATCHED_WRITER(403, "글을 작성한 회원이 아닙니다."),
+    IMAGE_SAVE_FAILED(500,"이미지 저장에 실패하였습니다");
 
     @Getter
     private int status;
