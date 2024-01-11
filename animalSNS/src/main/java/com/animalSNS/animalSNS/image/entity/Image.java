@@ -11,13 +11,13 @@ import javax.persistence.*;
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long imageId;
+    private long imageId;
 
     @Setter
-    String imageUri;
+    private String imageUri;
 
     @Setter
     @ManyToOne
     @JoinColumn(name = "postId")
-    Post post;
+    private Post post;
 }
