@@ -1,42 +1,70 @@
 package com.animalSNS.animalSNS.chat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import com.animalSNS.animalSNS.exception.BusinessLogicException;
+import com.animalSNS.animalSNS.exception.ExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
-@Service
 @Slf4j
+@Service
 public class ChatService {
 
-    private Map<String, ChatRoom> chatRooms = new ConcurrentHashMap<>();
+    private final ChatRepository chatRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
-    public ChatRoom getOrCreateRoom(String user1, String user2) {
-        String roomId = generateRoomId(user1, user2);
-        return chatRooms.computeIfAbsent(roomId, key -> new ChatRoom(roomId, user1, user2, LocalDateTime.now()));
+    public ChatService(ChatRepository chatRepository, ChatRoomRepository chatRoomRepository) {
+        this.chatRepository = chatRepository;
+        this.chatRoomRepository = chatRoomRepository;
     }
 
-    public void updateLastActive(String roomId) {
-        ChatRoom chatRoom = chatRooms.get(roomId);
-        if (chatRoom != null) {
-            chatRoom.setLastActive(LocalDateTime.now());
-        }
+    //메세지 생성
+    public Message createMessage(Message message, String memberCode){
+        //memberCode to memberId
+
+        long chatRoomId = generateRoomId(message.getSender(), message.getRecipient());
+
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(chatRoomId);
+
+        ChatRoom chatRoom = optionalChatRoom.orElseGet(() -> {
+            return createChatRoom(chatRoomId);
+        });
+
+        Message createMessage =  Message.builder()
+                .content(message.getContent())
+                .sender(message.getSender())
+                .recipient(message.getRecipient())
+                .chatRoom(chatRoom)
+                .build();
+
+        return chatRepository.save(createMessage);
     }
 
-    public void removeInactiveRooms() {
-        LocalDateTime tenMinutesAgo = LocalDateTime.now().minusMinutes(10);
-        chatRooms.values().removeIf(chatRoom -> chatRoom.getLastActive().isBefore(tenMinutesAgo));
+    //멤버별 메세지 조회
+    public List<Message> getMessagesByMember(String memberCode){
+        //TODO: sender과 recipient 회원 찾기
+        long roomId = generateRoomId(12345, 67890);
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(roomId);
+        ChatRoom findChatRoom = optionalChatRoom.orElseThrow(() ->new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));
+        return chatRepository.findAllByChatRoom(findChatRoom);
     }
 
-    private String generateRoomId(String user1, String user2) {
-        //TODO: roomId 생성
-        return String.format("%s_%s", user1, user2);
+    //메세시 전체 조회
+    public List<Message> getMessages(){
+        return chatRepository.findAll();
     }
+
+    //채팅방번호 생성
+    private long generateRoomId(long sender, long recipient) {
+        return sender ^ recipient;
+    }
+
+    //채팅방 생성
+    private ChatRoom createChatRoom(long chatRoomId){
+        return chatRoomRepository.save(new ChatRoom(chatRoomId));
+    }
+
+
 }

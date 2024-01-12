@@ -1,18 +1,25 @@
 package com.animalSNS.animalSNS.chat;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.List;
 
-
-@Getter
-@Setter
-@AllArgsConstructor
+@Entity
+@NoArgsConstructor
 public class ChatRoom {
-    private String roomId;
-    private String user1;
-    private String user2;
-    private LocalDateTime lastActive;
+
+    @Id
+    private long chatRoomId;
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    private List<Message> messageList;
+
+    public ChatRoom(long chatRoomId) {
+        this.chatRoomId = chatRoomId;
+    }
+
 }
