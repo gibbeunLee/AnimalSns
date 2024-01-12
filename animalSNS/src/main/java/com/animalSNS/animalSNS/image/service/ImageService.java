@@ -89,6 +89,6 @@ public class ImageService {
                 }
             }
         });
-        imageRepository.deleteById(postId);
+        imageRepository.deleteByPostPostId(postId);
     }
 }
