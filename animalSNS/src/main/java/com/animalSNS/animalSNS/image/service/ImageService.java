@@ -1,5 +1,6 @@
 package com.animalSNS.animalSNS.image.service;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -23,20 +24,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ImageService {
-    @Value("${cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${cloud.aws.credentials.secret-key}")
-    private String secretKey;
-
-    @Value("${cloud.aws.region.static}")
-    private String region;
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
 
     private final AmazonS3 amazonS3;
 
-    public static final String IMAGE_SAVE_URL = "";
     public static final String SEPERATOR  = "_";
     private final ImageRepository imageRepository;
 
@@ -46,7 +38,7 @@ public class ImageService {
     }
 
     public List<String> findImagesByPostId(long postId) {
-        return imageRepository.findById(postId).stream()
+        return imageRepository.findByPostPostId(postId).stream()
                 .map(image -> image.getImageUri())
                 .collect(Collectors.toList());
     }
@@ -71,10 +63,10 @@ public class ImageService {
                     }
 
                     String imageSavePath = amazonS3.getUrl(bucketName, name).toString(); //데이터베이스에 저장할 이미지가 저장된 주소
-                    //IMAGE_SAVE_URL + name;
 
                     Image image = new Image();
                     image.setImageUri(imageSavePath);
+                    image.setImageName(name);
                     image.setPost(post);
 
                     imageRepository.save(image);
@@ -83,39 +75,20 @@ public class ImageService {
                 .collect(Collectors.toList());
     }
 
-    public List<String> saveImagesTest(List<MultipartFile> images) {
-        log.info("Start");
-        return images.stream()
-                .map(img -> {
-                    UUID uuid = UUID.randomUUID();
-                    String type = img.getContentType();
-                    String name = uuid.toString() + SEPERATOR + img.getOriginalFilename();
-
-
-                    ObjectMetadata metadata = new ObjectMetadata();
-                    metadata.setContentType(type);
-                    try {
-                        PutObjectResult putObjectResult = amazonS3.putObject(new PutObjectRequest(
-                                bucketName, name, img.getInputStream(), metadata
-                        ).withCannedAcl(CannedAccessControlList.PublicRead));
-
-                    } catch (IOException e) {
-                        throw new BusinessLogicException(ExceptionCode.IMAGE_SAVE_FAILED); //커스텀 예외 던짐.
-                    }
-
-                    String imageSavePath = amazonS3.getUrl(bucketName, name).toString(); //데이터베이스에 저장할 이미지가 저장된 주소
-                    //IMAGE_SAVE_URL + name;
-
-                    Image image = new Image();
-                    image.setImageUri(imageSavePath);
-                    log.info(imageSavePath);
-                    imageRepository.save(image);
-                    return imageSavePath;
-                })
-                .collect(Collectors.toList());
-    }
-
-    public void deleteImageByPostId(long postId) {
+    public void deleteImageByPostId(long postId){
+        List<Image> images = imageRepository.findByPostPostId(postId);
+        images.stream().forEach(image -> {
+            String fileName = image.getImageName();
+            try {
+                amazonS3.deleteObject(bucketName, fileName);
+            } catch (SdkClientException e) {
+                try {
+                    throw new IOException("Error deleting file from S3", e);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
         imageRepository.deleteById(postId);
     }
 }

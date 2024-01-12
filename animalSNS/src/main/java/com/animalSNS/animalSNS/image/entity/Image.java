@@ -17,6 +17,9 @@ public class Image {
     private String imageUri;
 
     @Setter
+    private String imageName;
+
+    @Setter
     @ManyToOne
     @JoinColumn(name = "postId")
     private Post post;
